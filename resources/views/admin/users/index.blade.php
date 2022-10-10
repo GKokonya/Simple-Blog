@@ -3,7 +3,10 @@
 @section('content')
 
 <div class="flex flex-col mt-20 ml-5 mr-5">
-  <a class="btn" href="{{route('admin.users.create')}}">Create</a>
+  <div class="d-flex  mb-3 pl-2 pr-2 justify-content-end">
+    <a href="{{route('admin.users.index')}}"  class="btn btn-secondary ">Create</a>
+  </div>
+  <span class="text-danger">{{Session::get('user')}}</span>
   <div class="table-responsive">
     <table class="table table-bordered  table-sm table-hover table-striped">
       <thead class="table-dark">
@@ -22,10 +25,10 @@
           <td>{{$user->id}}</td>
           <td>{{$user->name}}</td>
           <td>{{$user->email}}</td>
-          <td><a class="btn btn-primary">Role</a></td>
-          <td><a href="{{ route('admin.users.edit',$user->id) }}">edit</a></td>
+          <td><a class="btn btn-secondary">Role</a></td>
+          <td><a href="{{ route('admin.users.show',$user->id) }}">edit</a></td>
           <td>
-          <form method="user" action="{{route('admin.users.destroy',$user->id)}}">
+          <form method="POST" action="{{route('admin.users.destroy', $user->id)}}">
           @csrf
           @method('DELETE')
           <button  onClick="return confirm('Are you Sure?')" type="submit">delete</button>

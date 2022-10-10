@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
-
 class UserController extends Controller
+
 {
     /**
      * Display a listing of the resource.
@@ -51,6 +53,12 @@ class UserController extends Controller
     public function show($id)
     {
         //
+        $user=User::find($id);
+        $roles=Role::all();
+        $permissions=Permission::all();
+
+        return view('admin.users.role',compact('user','roles','permissions'));
+
     }
 
     /**
@@ -89,12 +97,55 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
-        $user=User::find($id);
-        $user->delete();
 
-        return redirect()->route('admin.users.index');
+        if ($user->hasRole('Administrator')) {
+            return redirect()->route('admin.users.index')->with('user', 'You are an Admin.');
+        }else{
+            $user->delete();
+            return redirect()->route('admin.users.index')->with('user', 'User Deleted.');
+        }
+    }
+
+
+    public function assignRole(Request $request, User $user)
+    {
+
+        if ($user->hasRole(Role::all())) {
+            return back()->with('assign-role', 'The User has an existing role.');
+        }
+
+        $user->assignRole($request->role);
+        return back()->with('assign-role', 'Role assigned.');
+        
+    }
+
+    public function removeRole(User $user, Role $role)
+    {
+        if ($user->hasRole($role)) {
+            $user->removeRole($role);
+            return back()->with('message', 'Role removed.');
+        }
+
+        return back()->with('message', 'Role not exists.');
+    }
+
+    public function givePermission(Request $request, User $user)
+    {
+        if ($user->hasPermissionTo($request->permission)) {
+            return back()->with('message', 'Permission exists.');
+        }
+        $user->givePermissionTo($request->permission);
+        return back()->with('message', 'Permission added.');
+    }
+
+    public function revokePermission(User $user, Permission $permission)
+    {
+        if ($user->hasPermissionTo($permission)) {
+            $user->revokePermissionTo($permission);
+            return back()->with('message', 'Permission revoked.');
+        }
+        return back()->with('message', 'Permission does not exists.');
     }
 }

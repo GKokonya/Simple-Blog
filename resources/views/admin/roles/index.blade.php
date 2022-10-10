@@ -3,7 +3,7 @@
 @section('content')
 <div class="table-responsive">
   <div class="d-flex  mb-3 pl-2 pr-2 justify-content-end">
-    <a href="{{route('admin.roles.create')}}"  class="btn btn-secondary ">Add Role</a>
+    <a href="{{route('admin.roles.create')}}"  class="btn btn-secondary ">Create</a>
   </div>
   <table class="table table-hover table-bordered  table-light">
     <thead class="table-dark">

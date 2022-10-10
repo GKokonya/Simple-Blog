@@ -48,7 +48,13 @@ Route::prefix('admin')->name('admin.')->group(function(){
 
     ########################### USERS ########################
     Route::resource('/users', UserController::class);
-
+    Route::get('/users/{user}/roles', [UserController::class,'assignRole'])->name('users.roles');
+    Route::post('/users/{user}/roles', [UserController::class,'assignRole'])->name('users.roles');
+    Route::delete('/users/{user}/roles/{role}', [UserController::class,'removeRole'])->name('users.roles.remove');
+    
+    Route::post('/users/{user}/permissions', [UserController::class,'assignPermission'])->name('users.permissions');
+    Route::delete('/users/{user}/permissions/{permission}', [UserController::class,'removePermission'])->name('users.permissions.remove');
+    
 });
 ############################ ADMIN #############################
 

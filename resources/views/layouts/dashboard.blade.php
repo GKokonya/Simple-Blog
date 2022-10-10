@@ -15,6 +15,7 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/css/app.css' , 'resources/js/app.js'])
+    @livewireStyles()
     <style>
         :root {
   /*--main-bg-color: #009d63;*/
@@ -228,5 +229,7 @@
         };
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
+    @livewireScripts()
+    <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
 </body>
 </html>
