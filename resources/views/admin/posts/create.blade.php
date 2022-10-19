@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
 @section('content')
-<div class="container mt-5 mb-5">
-  <div class="card">
-    <div class="card-header text-center">Create New Post</div>
-    <div class="card-body">
+
+<div class="container mt-5 mb-5 rounded shadow bg-white p-3 w-75">
+    <div class="text-center h1">Create New Post</div>
+    <div class="body">
       <form method="POST" action="{{route('admin.posts.store')}}" enctype="multipart/form-data">
       @csrf
       <div class="mb-6">
@@ -21,11 +21,12 @@
         <textarea id="editor1" name="content" placeholder="Content"></textarea>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-2">Send</button>
+      <button type="submit" class="btn btn-outline-secondary mt-2 rounded">Send</button>
       </form>
     </div>
   </div>
 </div>
+
 <!-- Include the Quill library -->
 <script src="//cdn.ckeditor.com/4.19.1/basic/ckeditor.js"></script>
 

@@ -42,24 +42,4 @@
         </div>
     </form>
 </div>
-
-<div class="rounded bg-white mt-5">
-  <div class="pt-2 text-center h1 text-bold">Permissions</div>
-    <hr>
-      <div class="d-flex pl-2 pr-2 pt-2 pb-2">
-        @if($user->permissions)
-            @foreach ($user->permissions as $user_permission)
-                <form method="POST" action="{{route('admin.users.permissions.revoke',[$user->id,$user_permission->id])}}">
-                    @csrf
-                    @method('DELETE')
-                    <button class="bg-primary rounded text-white m-1" onClick="return confirm('Are you Sure?')" type="submit">{{$user_permission->name}}</button>
-                </form>
-            @endforeach
-        @endif
-
-      </div>
-    <div class="footer"> <span class="text-success">{{ Session::get('revoke-permission'); }}</span></div>
-</div>
-
-
 @endsection

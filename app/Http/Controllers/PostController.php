@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Auth;
 class PostController extends Controller
@@ -16,10 +17,21 @@ class PostController extends Controller
     public function index()
     {
         //
-        $posts=DB::table('users')
-        ->join('posts','users.id',"=","posts.user_id")
-        ->get();
-        return view('admin.posts.index',compact('posts'));
+        $user_id=Auth::user()->id;
+        $user=User::find($user_id);        
+        if($user->hasRole('Author')){
+            $posts=DB::table('users')
+            ->join('posts','users.id',"=","posts.user_id")
+            ->where('users.id',$user_id)
+            ->get();
+            return view('admin.posts.index',compact('posts'));
+        }else{
+            $posts=DB::table('users')
+            ->join('posts','users.id',"=","posts.user_id")
+            ->get();
+            return view('admin.posts.index',compact('posts'));
+        }
+
     }
 
     /**
@@ -97,8 +109,21 @@ class PostController extends Controller
     public function edit($id)
     {
         //
-        $post=Post::find($id);
-        return view('admin.posts.edit',compact('post'));
+        $user_id=Auth::user()->id;
+        $user=User::find($user_id);        
+        if($user->hasRole('Author')){
+            $post=Post::select('*')->where('id','=',$id)->where('user_id','=',$user_id)->first();
+            if($post){
+                return view('admin.posts.edit',compact('post'));
+            }else{
+                abort(403);
+            }
+            
+        }else{
+            $post=Post::find($id);
+            return view('admin.posts.edit',compact('post'));
+        }
+       
     }
 
     /**

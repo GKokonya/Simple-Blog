@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+
 class UserController extends Controller
 
 {
@@ -70,8 +71,8 @@ class UserController extends Controller
     public function edit($id)
     {
         //
-        $user=User::find($id);
-        return view('admin.posts.create',compact('user'));
+        $user=User::findorfail($id);
+        return view('admin.users.edit',compact('user'));
     }
 
     /**
@@ -84,10 +85,9 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $user=Post::find($id);
-        //$post->title=$request->title;
-        //$post->content=$request->content;
-        $user->save();
+        $user=User::findorfail($id);
+        $validated=$request->validate(['name'=>['required','min:3']]);
+        $user->update($validated);
         return redirect()->route('admin.users.index');
     }
 
@@ -131,7 +131,7 @@ class UserController extends Controller
         return back()->with('message', 'Role not exists.');
     }
 
-    public function givePermission(Request $request, User $user)
+    /*public function givePermission(Request $request, User $user)
     {
         if ($user->hasPermissionTo($request->permission)) {
             return back()->with('message', 'Permission exists.');
@@ -147,5 +147,5 @@ class UserController extends Controller
             return back()->with('message', 'Permission revoked.');
         }
         return back()->with('message', 'Permission does not exists.');
-    }
+    }*/
 }

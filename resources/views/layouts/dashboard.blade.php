@@ -14,11 +14,12 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/css/app.css' , 'resources/js/app.js'])
+    @vite(['resources/sass/app.scss', 'resources/css/app.css'])
+   
     @livewireStyles()
     <style>
         :root {
-  /*--main-bg-color: #009d63;*/
+  --main-bg-color: #009d63;
   --main-bg-color: #078ece;
   --main-text-color: #009d63;
   --second-text-color: #bbbec5;
@@ -125,31 +126,52 @@
 <div class="d-flex" id="wrapper">
   <!-- Sidebar -->
   <div class="bg-white" id="sidebar-wrapper">
-    <div class="sidebar-heading text-center primary-text fs-4 fw-bold text-uppercase">
+    <div class="sidebar-heading text-center fs-4 fw-bold text-uppercase">
       <i class="fas fa-user-secret me-2"></i>
       {{ config('app.name', 'Laravel') }}
     </div>
+    <!--
+      class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border boder-1"
+    -->
     <div class="list-group list-group-flush my-3">
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
+
+      <a href="{{route('admin.roles.index')}}" 
+      class="list-group-item list-group-item-action bg-transparent border boder-1">
         <i class="fas fa-tachometer-alt me-2"></i>
         Dashboard
       </a>
-      <a href="{{route('admin.roles.index')}}" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border boder-1">
-        <i class="fas fa-power-off me-2"></i>
+      @can('view all roles')
+      <a href="{{route('admin.roles.index')}}" 
+      class="list-group-item list-group-item-action bg-transparent second-text  border boder-1 {{ request()->is('admin/roles/edit') ? 'active': ''}}">
+      <i class="fa-solid fa-user-secret"></i>
         Roles
       </a>
-      <a href="{{route('admin.permissions.index')}}" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold">
-        <i class="fas fa-power-off me-2"></i>
+      @endcan
+      @can('view all permissions')
+      <a href="{{route('admin.permissions.index')}}" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
+      <i class="fa-solid fa-lock"></i>
         Permissions
       </a>
-      <a href="{{route('admin.posts.index')}}" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border boder-1">
+      @endcan
+      @can('view all posts')
+      <a href="{{route('admin.posts.index')}}" 
+      class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
         <i class="fa-solid fa-blog m-1"></i
         >Posts
       </a>
-      <a href="{{route('admin.users.index')}}" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold">
+
+      @endcan
+
+      @can('view all users')
+      <a href="{{route('admin.users.index')}}" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
         <i class="fa-solid fa-users m-1"></i>Users
       </a>
-      <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border boder-1"><i
+      @endcan
+      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
+      <i class="fa-solid fa-user me-2"></i>Profile
+      </a>
+
+      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1"><i
             class="fas fa-power-off me-2"></i>Logout
       </a>
     </div>
@@ -160,7 +182,7 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
+                    <i class="fas fa-align-left fs-4 me-3" id="menu-toggle"></i>
                     <h2 class="fs-2 m-0">Dashboard</h2>
                 </div>
 
@@ -228,8 +250,14 @@
             el.classList.toggle("toggled");
         };
     </script>
-    <script src="{{ asset('js/app.js') }}"></script>
+
+      @vite(['resources/js/app.js'])
+
+      @yield('scripts')
+      <!-- after -->
     @livewireScripts()
+
+  
     <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
 </body>
 </html>
