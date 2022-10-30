@@ -1,0 +1,1 @@
+<td class="text-nowrap text-left">{{$slot}}</td>

@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 
 use App\Http\Livewire\Posts;
 
+use App\Models\User;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -61,4 +63,3 @@ Route::prefix('admin')->name('admin.')->group(function(){
     });
 });
 ############################ ADMIN #############################
-

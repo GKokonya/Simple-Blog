@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class UserController extends Controller
@@ -19,7 +20,7 @@ class UserController extends Controller
     public function index()
     {
         //
-        $users=User::all();
+        $users=User::paginate(10);
         return view('admin.users.index',compact('users'));
     }
 
@@ -43,6 +44,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         //
+        $data=$request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' =>   'required',
+        ]);
+
+        User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
+
+        return redirect()->route('admin.users.index');
+
+      
     }
 
     /**
@@ -54,7 +70,7 @@ class UserController extends Controller
     public function show($id)
     {
         //
-        $user=User::find($id);
+        $user=User::findorfail($id);
         $roles=Role::all();
         $permissions=Permission::all();
 

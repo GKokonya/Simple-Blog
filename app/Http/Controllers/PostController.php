@@ -163,7 +163,7 @@ class PostController extends Controller
     function list(){
         $posts=DB::table('users')
         ->join('posts','users.id',"=","posts.user_id")
-        ->get();
+        ->paginate(2);
         return view('index',compact('posts'));
     }
 

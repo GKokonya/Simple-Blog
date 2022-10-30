@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Database\Query\Builder;
+
+use App\Macros\SearchMacros;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+       
     }
 
     /**
@@ -27,5 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Paginator::useBootstrapFive();
+
+        Builder::mixin(new SearchMacros);
     }
 }

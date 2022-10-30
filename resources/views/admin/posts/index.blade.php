@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    @livewire('post')
+    @livewire('post-table')
 @endsection
 
 @section('scripts')

@@ -16,12 +16,12 @@
 <div class="rounded bg-white mt-5">
   <div class="pt-2 text-center h1 text-bold">Permissions</div>
     <hr>
-      <div class="d-flex pl-2 pr-2 pt-2 pb-2" >
+      <div class="row">
         @foreach ($role->permissions as $per)
-          <form method="POST" action="{{route('admin.roles.permissions.revoke',[$role->id,$per->id])}}">
+          <form class="col-2" method="POST" action="{{route('admin.roles.permissions.revoke',[$role->id,$per->id])}}">
             @csrf
             @method('DELETE')
-            <button class="bg-primary rounded text-white m-1" onClick="return confirm('Are you Sure?')" type="submit">{{$per->name}}</button>
+            <button class="btn btn-primary rounded text-white m-1 p-2" onClick="return confirm('Are you Sure?')" type="submit">{{$per->name}}</button>
           </form>
         @endforeach
       </div>

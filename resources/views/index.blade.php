@@ -1,33 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+  /*
+  .image-thumbnail {
+    position: relative;
+}
+
+.image-caption {
+    position: absolute;
+    top: 45%;
+    left: 0;
+    width: 100%;
+}*/
+</style>
 <!--start of content-->
 <div class="container-fluid">
   <div class="row">
     <div class="col-9">
       <!--Start of Blog Post-->
       @foreach ($posts as $post)
-      <div class="card mb-3">
-          <div class="row card-body">
-            <div class="col-4"><img
-            class="img-fluid rounded"
-            src="{{Storage::url($post->image_path)}}"
-             alt="{{$post->title}}"></div>
-            <div class="col-8">
-              <h1>{{$post->title}}</h1>
-              <hr>
-              <p class="d-inline-block text-truncate" style="max-width: 150px;">{{strip_tags($post->content)}}</p>
-            </div>
-          </div>
-        <div class="card-footer ">
-          <div class="row">
-            <div class="col-4 text-start font-weight-bold text-dark">{{$post->name}}</div>
-            <div class="col-4 text-start"><a href="{{route('single-post',$post->id)}}">Read More</a></div>
-            <div class="col-4 text-end">{{$post->created_at}}</div>
-          </div>
+      <div class="d-flex row my-2 mx-2 p-0 rounded shadow" >
+
+      
+      <div class="col-6 p-0" >
+            <img class="img-fluid p-0 rounded-start" src="{{Storage::url($post->image_path)}}"alt="{{$post->title}}">
         </div>
+
+        <div class="col-6">
+          <div><p class="h1 text-secondary"> {{$post->title}}</p></div>
+          <hr>
+          <div class="text-truncate overflow-hidden">{{$post->content}}</div>
+          
+        </div>
+
       </div>
       @endforeach
+      <div>
+        {{$posts->links()}}
+      </div>
+     
       <!--End of Blog Post-->
     </div>
 

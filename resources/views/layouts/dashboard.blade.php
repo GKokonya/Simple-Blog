@@ -12,14 +12,20 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
+    <link href="{{asset('resources/css/main.css')}}" rel="stylesheet">
     <!-- Scripts -->
+   <!--
     @vite(['resources/sass/app.scss', 'resources/css/app.css'])
-   
+-->
+    
+    @vite(['resources/css/main.css','resources/css/app.css'])
+
     @livewireStyles()
+    @powerGridStyles
+   
     <style>
         :root {
-  --main-bg-color: #009d63;
+  --main-bg-color: #009d63
   --main-bg-color: #078ece;
   --main-text-color: #009d63;
   --second-text-color: #bbbec5;
@@ -120,6 +126,10 @@
     margin-left: -15rem;
   }
 }
+
+[x-cloak]{
+    display: none;
+}
     </style>
 </head>
 <body>
@@ -159,7 +169,6 @@
         <i class="fa-solid fa-blog m-1"></i
         >Posts
       </a>
-
       @endcan
 
       @can('view all users')
@@ -242,6 +251,7 @@
       </div>
     <!-- /#page-content-wrapper -->
     </div>
+  
     <script>
         var el = document.getElementById("wrapper");
         var toggleButton = document.getElementById("menu-toggle");
@@ -251,13 +261,19 @@
         };
     </script>
 
-      @vite(['resources/js/app.js'])
+     
 
-      @yield('scripts')
-      <!-- after -->
+
+@vite(['resources/js/app.js'])    
+<!--
+<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+      -->
+<!-- after -->
     @livewireScripts()
+    @powerGridScripts
 
   
     <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
-</body>
+    
+  </body>
 </html>

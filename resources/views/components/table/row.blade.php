@@ -1,0 +1,1 @@
+<tr {{$attributes}} class="bg-white py-2 text-left">{{$slot}}</tr>

@@ -1,105 +1,102 @@
- <!-- Added this wrapping div -->
-<div class="flex flex-col mt-20 ml-5 mr-5">
-    <div class="d-flex  mb-3 pl-2 pr-2 justify-content-end">
-    @if (session()->has('message'))
-                    <h5 class="alert alert-success">{{ session('message') }}</h5>
-                @endif
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary rounded" data-bs-toggle="modal" data-bs-target="#studentModal">
-            <i class="fa fa-plus-circle m-1"></i>
-            Create
-        </button>
-    </div>
-    <span class="text-danger">{{Session::get('user')}}</span>
-    <div class="table-responsive">
-        <table class="table table-hover border align-middle mb-0 bg-white shadow rounded ">
-            <thead class="bg-light">
-                <tr class="text-left">
-                    <th scope="col" class="">#ID</th>
-                    <th scope="col" class="">Title</th>
-                    <th scope="col" class="">Email</th>
-                    <th scope="col" class="">Role</th>
-                    <th scope="col" class="">Edit</th>
-                    <th scope="col" class="">Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ( $users as $user)
-                <tr class="text-left">
-                    <td>{{$user->id}}</td>
-                    <td>{{$user->name}}</td>
-                    <td>{{$user->email}}</td>
-                    <td><a class="btn btn-link btn-rounded btn-sm fw-bold text-decoration-none text-secondary"  href="{{ route('admin.users.show',$user->id) }}">role</a></td>
-                    <td><a class="btn btn-link btn-rounded btn-sm fw-bold text-decoration-none"  href="{{ route('admin.users.edit',$user->id) }}">edit</a></td>
-                    <td>
-                        <form method="POST" action="{{route('admin.users.destroy', $user->id)}}">
-                            @csrf
-                            @method('DELETE')
-                            <button  class="btn btn-link btn-rounded btn-sm fw-bold text-decoration-none text-danger"  onClick="return confirm('Are you Sure?')" type="submit">delete</button>
-                        </form>
-                    </td>
-                </tr>
-                 @endforeach
-            </tbody>
-            <caption>List of Blog users</caption>
-        </table>
-    </div>
+<div class="container"> 
 
-    <!--------------Modal--------->
-    <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel"
-    aria-hidden="true">
-     <div class="modal-dialog" role="document">
-
-            <div class="modal-content">
-             
-                    <div class="modal-header">
-                        <h5 class="modal-title text-center" id="exampleModalLabel">Create User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                    <form wire:submit.prevent="store">
-                        <div class="form-group">
-                        <label for="name" class="col-md-4 col-form-label">{{ __('Name') }}</label>
-                            <input wire.model.defer="name" id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name">
-                            {{$name}}
-                            @error('name')
-                                <span class="invalid-feedback text-danger" role="alert"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email" class="col-md-4 col-form-label">{{ __('Email Address') }}</label>
-                            <input wire.model.defer="email" id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" >
-                            @error('email')<span class="invalid-feedback text-danger" role="alert"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password" class="col-md-4 col-form-label">{{ __('Password') }}</label>
-                            <input wire.model.defer="password" id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" >
-                            @error('password')<span class="invalid-feedback text-danger" role="alert"><strong>{{ $message }}</strong></span>@enderror
-                        </div>
-
-                        
-                        <div class="form-group">
-                            <label for="password-confirm" class="col-md-4 col-form-label">{{ __('Confirm Password') }}</label>
-                            <input wire.model.defer="password_confirmation" id="password-confirm" type="password" class="form-control" name="password_confirmation">
-                        </div>
-
-                                                
-                        <div class="form-group">
-
-                        <button type="submit" class="btn btn-primary">Save</button>
-                           
-                        </div>
-
-                        </form>
-
-                    </div>
-  
-                </div>
-
+    <div class="row my-2">
+        <div class="col-8 d-flex justify-content-start">
+            
+            <div class="input-group">
+                <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input wire:model.lazy="filters.search" type="text" class="form-control w-25" placeholder="search email ...">
+            </div>
+            <button class="d-flex flex-nowrap btn btn-primary mx-2" x-data @click="$dispatch('open-modal')">Filter...</button>
         </div>
-    </div>
-    <!--------------Modal--------->
+        <div class="col-4 d-flex justify-content-end">
+            <div class="dropdown mx-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    Bulk Action
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><x-button class=" dropdown-item"><i class="fa-solid fa-download me-1"></i>Export</x-button></li>
+                    <li><x-button class="dropdown-item" onclick="confirm('Are you sure?') ||
+                     event.stopImmediatePropagation()" wire:click="deleteSelected"><i class="fa-solid fa-trash me-2"></i>Delete</x-button></li>
+                </ul>
+            </div>
+            <a href="{{route('admin.users.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i>New</a>
+        </div>
+    
+   </div>
 
+   
+    <x-table.table>
+
+        <x-slot name="head">
+            <x-table.heading> <input wire:model="selectPage" type="checkbox"/></x-table.heading>
+            <x-table.heading wire:click="sortBy('id')" :heading="$sortDirection"> <i class="fa-solid fa-sort-up me-1"></i>id</x-table.heading>
+            <x-table.heading wire:click="sortBy('name')">name</x-table.heading>
+            <x-table.heading wire:click="sortBy('email')">email</x-table.heading>
+            <x-table.heading>Actions</x-table.heading>
+        </x-slot>
+        
+        <x-slot name="body">
+            <x-table.row  
+            x-data="{open:false}"
+            x-show="open"
+            x-cloak
+            @open-modal.window="open=!open"
+            
+            class="bg-light">
+
+            <x-table.cell></x-table.cell> 
+            <x-table.cell> 
+                <x-input type="number" wire:model.lazy="filters.id_min"/> 
+                <x-input type="number" wire:model.lazy="filters.id_max"/>
+            </x-table.cell>
+            <x-table.cell> 
+                <x-input type="text" wire:model.lazy="filters.name"/> 
+            </x-table.cell>
+            <x-table.cell> 
+                <x-input type="text" wire:model.lazy="filters.email"/> 
+            </x-table.cell>
+            <x-table.cell> <x-button class="btn btn-outline-secondary" wire:click="resetFilters"> Reset Filters</x-button> </x-table.cell>
+            </x-table.row>
+           
+            @forelse ( $users as $user )
+            <x-table.row wire:loading.class.delay="opacity-25"  wire:key="{{$user->id}}" >
+                <x-table.cell> 
+                        <input type="checkbox" wire:model="selected" value="{{$user->id}}"/>
+                    </x-table.cell>
+                <x-table.cell>{{$user->id}}</x-table.cell>
+                <x-table.cell>{{$user->name}}</x-table.cell>
+                <x-table.cell>{{$user->email}}</x-table.cell>
+                <x-table.cell><a href="{{route('admin.users.edit',$user)}}"><span class="text-primary">edit</span></a></x-table.cell>
+            </x-table.row>
+            @empty
+                <tr colspan="4">
+                <x-table.cell>
+                    <div class="d-flex justify-content-center">
+                    <i class="fa-solid fa-users text-secondary py-2 h2"></i>
+                    <span class="mx-1 py-2 h2 text-secondary">no users found...</span>
+                    </div>
+                </x-table.cell>
+                </tr>
+            @endforelse
+  
+        </x-slot>
+    </x-table.table>
+
+    <div class="row mt-2">
+        <div class="col-6 d-flex justify-content-start">
+            <label for="perPage" class="mx-2 mt-2">Per Page</label>
+                <select class="form-select w-25 h-75" wire:model="perPage">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+        </div>
+
+        <div class="col-6 d-flex justify-content-end" data-turbolinks="false">
+        {{$users->links()}}
+        </div>
+
+    </div>
 
 </div>
