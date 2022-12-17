@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  x-data="data()">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,272 +8,325 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-    <link href="{{asset('resources/css/main.css')}}" rel="stylesheet">
-    <!-- Scripts -->
-   <!--
-    @vite(['resources/sass/app.scss', 'resources/css/app.css'])
--->
-    
-    @vite(['resources/css/main.css','resources/css/app.css'])
-
+    <title>Admin Dashboard</title>
+    @vite('resources/css/app.css')
     @livewireStyles()
-    @powerGridStyles
-   
-    <style>
-        :root {
-  --main-bg-color: #009d63
-  --main-bg-color: #078ece;
-  --main-text-color: #009d63;
-  --second-text-color: #bbbec5;
-  --second-bg-color: #c1efde;
-}
+  </head>
+  <body class="font-family-karia antialiased">
 
-.primary-text {
-  color: var(--main-text-color);
-}
+    <div class="flex h-screen  dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
+      <!-- Desktop sidebar -->
+      <aside class="z-20 hidden w-50 overflow-y-auto bg-white shadow md:block flex-shrink-0">
+        <div class="py-4 text-gray-500 dark:text-gray-400">
+          <a href="{{route('home')}}" class="flex mx-4 px-8">
+            <i class="fas fa-blog text-indigo-600 text-3xl hover:text-indigo-700"></i>
+          </a>
 
-.second-text {
-  color: var(--second-text-color);
-}
+          <ul class="mt-6">
+            <li class="px-3 py-1 relative">
+              <span class="{{ request()->route()->getName()=='home' ? 'active': '' }}" aria-hidden="true"></span>
+                <a href="{{route('home')}}"class="flex items-center rounded-lg  px-4 py-2">
+                  <span class="ml-3 font-medium"><i class="fa-solid fa-house"></i> Dashboard </span>
+              </a>
+            </li>
 
-.primary-bg {
-  background-color: var(--main-bg-color);
-}
+            @can('view categories')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='categories.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('categories.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-list"></i> categories </span>
+                </a>
+              </li>
+            @endcan
 
-.secondary-bg {
-  background-color: var(--second-bg-color);
-}
+            @can('view posts')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='posts.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('posts.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-newspaper"></i> Posts </span>
+                </a>
+              </li>
+            @endcan
 
-.rounded-full {
-  border-radius: 100%;
-}
-/*
-#wrapper {
-  overflow-x: hidden;
-  background-image: linear-gradient(
-    to right,
-    #baf3d7,
-    #c2f5de,
-    #cbf7e4,
-    #d4f8ea,
-    #ddfaef
-  );
-}*/
+            @can('view users')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='users.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('users.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-users"></i> Users </span>
+                </a>
+              </li>
+            @endcan
 
-#wrapper{
-    
-    /*background-color:#e2e8f0;*/
-    background-color: #f1f5f9;
-}
+            @can('view roles')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='roles.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('roles.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-user-lock"></i> Roles </span>
+                    
+                </a>
+              </li>
+            @endcan
 
-#sidebar-wrapper {
-  min-height: 100vh;
-  margin-left: -15rem;
-  -webkit-transition: margin 0.25s ease-out;
-  -moz-transition: margin 0.25s ease-out;
-  -o-transition: margin 0.25s ease-out;
-  transition: margin 0.25s ease-out;
-}
+            @can('view permissions')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='permissions.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('permissions.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-shield-halved"></i> Permissions </span>
+                </a>
+              </li>
+            @endcan
 
-#sidebar-wrapper .sidebar-heading {
-  padding: 0.875rem 1.25rem;
-  font-size: 1.2rem;
-}
+            @can('change own password')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='users.editpassword' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{ route('users.editpassword', Auth::user()->id) }}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                      <span class="ml-3 font-medium"><i class="fa-solid fa-unlock"></i> Update Password </span>
+                  </a>
+              <li>
+            @endcan
+            
+          
+            <li class="px-3 py-1 relative">
+              <span class="{{ request()->route()->getName()=='logout' ? 'active': '' }}" aria-hidden="true"></span>
+              <form action="{{ route('logout') }}" method="POST" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                  @csrf
+                  <button onclick="return confirm('Are you sure you want to logout?')">  
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-power-off"></i> Logout </span>
+                  </button>
+              </form>
+            </li>
 
-#sidebar-wrapper .list-group {
-  width: 15rem;
-}
-
-#page-content-wrapper {
-  min-width: 100vw;
-}
-
-#wrapper.toggled #sidebar-wrapper {
-  margin-left: 0;
-}
-
-#menu-toggle {
-  cursor: pointer;
-}
-
-.list-group-item {
-  border: none;
-  padding: 20px 30px;
-}
-
-.list-group-item.active {
-  background-color: transparent;
-  color: var(--main-text-color);
-  font-weight: bold;
-  border: none;
-}
-
-@media (min-width: 768px) {
-  #sidebar-wrapper {
-    margin-left: 0;
-  }
-
-  #page-content-wrapper {
-    min-width: 0;
-    width: 100%;
-  }
-
-  #wrapper.toggled #sidebar-wrapper {
-    margin-left: -15rem;
-  }
-}
-
-[x-cloak]{
-    display: none;
-}
-    </style>
-</head>
-<body>
-<div class="d-flex" id="wrapper">
-  <!-- Sidebar -->
-  <div class="bg-white" id="sidebar-wrapper">
-    <div class="sidebar-heading text-center fs-4 fw-bold text-uppercase">
-      <i class="fas fa-user-secret me-2"></i>
-      {{ config('app.name', 'Laravel') }}
-    </div>
-    <!--
-      class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border boder-1"
-    -->
-    <div class="list-group list-group-flush my-3">
-
-      <a href="{{route('admin.roles.index')}}" 
-      class="list-group-item list-group-item-action bg-transparent border boder-1">
-        <i class="fas fa-tachometer-alt me-2"></i>
-        Dashboard
-      </a>
-      @can('view all roles')
-      <a href="{{route('admin.roles.index')}}" 
-      class="list-group-item list-group-item-action bg-transparent second-text  border boder-1 {{ request()->is('admin/roles/edit') ? 'active': ''}}">
-      <i class="fa-solid fa-user-secret"></i>
-        Roles
-      </a>
-      @endcan
-      @can('view all permissions')
-      <a href="{{route('admin.permissions.index')}}" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
-      <i class="fa-solid fa-lock"></i>
-        Permissions
-      </a>
-      @endcan
-      @can('view all posts')
-      <a href="{{route('admin.posts.index')}}" 
-      class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
-        <i class="fa-solid fa-blog m-1"></i
-        >Posts
-      </a>
-      @endcan
-
-      @can('view all users')
-      <a href="{{route('admin.users.index')}}" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
-        <i class="fa-solid fa-users m-1"></i>Users
-      </a>
-      @endcan
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1">
-      <i class="fa-solid fa-user me-2"></i>Profile
-      </a>
-
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text  border boder-1"><i
-            class="fas fa-power-off me-2"></i>Logout
-      </a>
-    </div>
-  </div>
-  <!-- /#sidebar-wrapper -->
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-align-left fs-4 me-3" id="menu-toggle"></i>
-                    <h2 class="fs-2 m-0">Dashboard</h2>
-                </div>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  <!-- Right Side Of Navbar -->
-                  <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
-            </nav>
-
-            <div class="container px-4">
-            @yield('content')
-
-
-
-            </div>
+          </ul>
         </div>
-    
-      </div>
-    <!-- /#page-content-wrapper -->
-    </div>
-  
-    <script>
-        var el = document.getElementById("wrapper");
-        var toggleButton = document.getElementById("menu-toggle");
-
-        toggleButton.onclick = function () {
-            el.classList.toggle("toggled");
-        };
-    </script>
-
+      </aside>
+      <!-- Mobile sidebar -->
+      <!-- Backdrop -->
      
+      <aside
+        class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden"
+        x-show="isSideMenuOpen"
+        x-transition:enter="transition ease-in-out duration-150"
+        x-transition:enter-start="opacity-0 transform -translate-x-20"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in-out duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0 transform -translate-x-20"
+        @click.away="closeSideMenu"
+        @keydown.escape="closeSideMenu"
+      >
+        <div class="py-4 text-gray-500 dark:text-gray-400">
+          <a
+            class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
+            href="#"
+          >
+            Windmill
+          </a>
+          <ul class="mt-6">
+          <li class="px-3 py-1 relative">
+              <span class="{{ request()->route()->getName()=='home' ? 'active': '' }}" aria-hidden="true"></span>
+                <a href="{{route('home')}}"class="flex items-center rounded-lg  px-4 py-2">
+                  <span class="ml-3 font-medium"><i class="fa-solid fa-house"></i> Dashboard </span>
+              </a>
+            </li>
 
+            
+            @can('view categories')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='categories.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('categories.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-users"></i> categories </span>
+                </a>
+              </li>
+            @endcan
 
-@vite(['resources/js/app.js'])    
-<!--
-<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-      -->
-<!-- after -->
-    @livewireScripts()
-    @powerGridScripts
+            @can('view posts')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='posts.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('posts.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-users"></i> Posts </span>
+                </a>
+              </li>
+            @endcan
 
-  
-    <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false" data-turbo-eval="false"></script>
+            @can('view users')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='users.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('users.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-users"></i> Users </span>
+                </a>
+              </li>
+            @endcan
+
+            @can('view roles')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='roles.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('roles.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-user-lock"></i> Roles </span>
+                    
+                </a>
+              </li>
+            @endcan
+
+            @can('view permissions')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='permissions.index' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{route('permissions.index')}}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-shield-halved"></i> Permissions </span>
+                </a>
+              </li>
+            @endcan
+
+            @can('change own password')
+              <li class="px-3 py-1 relative">
+                <span class="{{ request()->route()->getName()=='users.editpassword' ? 'active': '' }}" aria-hidden="true"></span>
+                  <a href="{{ route('users.editpassword', Auth::user()->id) }}" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                      <span class="ml-3 font-medium"><i class="fa-solid fa-unlock"></i> Update Password </span>
+                  </a>
+              <li>
+            @endcan
+            
+          
+            <li class="px-3 py-1 relative">
+              <span class="{{ request()->route()->getName()=='logout' ? 'active': '' }}" aria-hidden="true"></span>
+              <form action="{{ route('logout') }}" method="POST" class="flex items-center rounded-lg px-4 py-2 text-gray-500  hover:text-gray-700">
+                  @csrf
+                  <button onclick="return confirm('Are you sure you want to logout?')">  
+                    <span class="ml-3 font-medium"><i class="fa-solid fa-power-off"></i> Logout </span>
+                  </button>
+              </form>
+            </li>
+          </ul>
+
+        </div>
+      </aside>
+      <div class="flex flex-col flex-1 w-full">
+        <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+          <div
+            class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
+          >
+            <!-- Mobile hamburger -->
+            <button
+              class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
+              @click="toggleSideMenu"
+              aria-label="Menu"
+            >
+              <svg
+                class="w-6 h-6"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+            <!-- Search input -->
+            <div class="flex justify-center flex-1 lg:mr-32">
+              <div
+                class="relative w-full max-w-xl mr-6 focus-within:text-purple-500"
+              >
+                <div class="absolute inset-y-0 flex items-center pl-2">
     
+                </div>
+            
+                
+              </div>
+            </div>
+            <ul class="flex items-center flex-shrink-0 space-x-6">
+
+              <!-- Notifications menu -->
+              <li class="relative">
+                <button
+                  class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
+                  @click="toggleNotificationsMenu"
+                  @keydown.escape="closeNotificationsMenu"
+                  aria-label="Notifications"
+                  aria-haspopup="true"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    aria-hidden="true"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                    ></path>
+                  </svg>
+                  <!-- Notification badge -->
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"
+                  ></span>
+                </button>
+                <template x-if="isNotificationsMenuOpen">
+                  <ul
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    @click.away="closeNotificationsMenu"
+                    @keydown.escape="closeNotificationsMenu"
+                    class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:text-gray-300 dark:border-gray-700 dark:bg-gray-700"
+                  >
+                    <li class="flex">
+                      <a
+                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md  hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        href="#"
+                      >
+                        <span>Messages</span>
+                        <span
+                          class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
+                        >
+                          13
+                        </span>
+                      </a>
+                    </li>
+                    <li class="flex">
+                      <a
+                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md  hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        href="#"
+                      >
+                        <span>Sales</span>
+                        <span
+                          class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
+                        >
+                          2
+                        </span>
+                      </a>
+                    </li>
+                    <li class="flex">
+                      <a
+                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md  hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        href="#"
+                      >
+                        <span>Alerts</span>
+                      </a>
+                    </li>
+                  </ul>
+                </template>
+              </li>
+              
+
+              
+            </ul>
+          </div>
+        </header>
+        <main class="h-full bg-white overflow-y-auto m-4 mr-10 my-8">
+        @yield('content')
+        </main>
+      </div>
+    </div>
+
+    @vite([        
+        'resources/js/alpine.js',
+        'resources/js/init-alpine.js',
+        'resources/js/turbolinks.js',
+        ])
+      @livewireScripts()
+      <script src="https://cdn.jsdelivr.net/gh/livewire/turbolinks@v0.1.x/dist/livewire-turbolinks.js" data-turbolinks-eval="false"></script>
+
   </body>
 </html>

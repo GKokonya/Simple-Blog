@@ -3,165 +3,98 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+
 use App\Models\User;
+use Spatie\Permission\Models\Role;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
 
+use Auth;
 class UserController extends Controller
-
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    #method used to return a view to edit a user
+    public function edit(User $user): View
     {
-        //
-        $users=User::paginate(10);
-        return view('admin.users.index',compact('users'));
+        $roles = Role::wherenot('name','super-admin')->pluck('name', 'id');
+
+        return view('users.edit', compact('user', 'roles'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    #method used to return view for editing password for currently loggined user
+    public function editPassword(User $user): View
     {
-        //
-        return view('admin.users.create');
+        return view('users.edit-password', compact('user'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    #method that return a view to edit other users passwords
+    public function editOtherUserPassword(User $user): View
     {
-        //
-        $data=$request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' =>   'required',
-        ]);
+        $login_user=User::find(Auth::user()->id);
 
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
-        return redirect()->route('admin.users.index');
-
-      
+        if( $user->hasRole('super-admin') && $login_user->hasRole('admin') ){
+            abort(403);
+        }
+        return view('users.edit-other-user-password', compact('user'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    #method used to update password for other users(this will be used by admin/super-admin)
+    public function updateOtherUserPassword(Request $request, User $user)
     {
-        //
-        $user=User::findorfail($id);
-        $roles=Role::all();
-        $permissions=Permission::all();
+        $login_user=User::find(Auth::user()->id);
 
-        return view('admin.users.role',compact('user','roles','permissions'));
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-        $user=User::findorfail($id);
-        return view('admin.users.edit',compact('user'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-        $user=User::findorfail($id);
-        $validated=$request->validate(['name'=>['required','min:3']]);
-        $user->update($validated);
-        return redirect()->route('admin.users.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
-    {
-
-        if ($user->hasRole('Administrator')) {
-            return redirect()->route('admin.users.index')->with('user', 'You are an Admin.');
+        if( $user->hasRole('super-admin') && $login_user->hasRole('admin') ){
+            abort(403);
+        
         }else{
-            $user->delete();
-            return redirect()->route('admin.users.index')->with('user', 'User Deleted.');
+
+            $validated=$request->validate([
+                'new_password'=>'required|string|min:8|confirmed'
+            ]);
+
+            User::whereId($user->id)->update(['password'=>Hash::make($validated['new_password'])]);
+            session()->flash('success_user_password_message','password sucessfully updated!');       
+            return redirect()->back();
+
         }
-    }
-
-
-    public function assignRole(Request $request, User $user)
-    {
-
-        if ($user->hasRole(Role::all())) {
-            return back()->with('assign-role', 'The User has an existing role.');
-        }
-
-        $user->assignRole($request->role);
-        return back()->with('assign-role', 'Role assigned.');
         
     }
 
-    public function removeRole(User $user, Role $role)
+    #method used to update password
+    public function updatePassword(Request $request, User $user)
     {
-        if ($user->hasRole($role)) {
-            $user->removeRole($role);
-            return back()->with('message', 'Role removed.');
-        }
+        
+        $validated=$request->validate([
+            'old_password'=>'required',
+            'new_password' => 'required|confirmed'
+        ]);
 
-        return back()->with('message', 'Role not exists.');
+        if( $user->hasRole('regular') && Auth::user()->id!=$user->id){
+            abort(403);
+        }
+    
+        if(!Hash::check($validated['old_password'],Auth::user()->password)){
+            session()->flash('error_user_password_message','Old password does not match');
+            return redirect()->back();
+        }else{
+            User::whereId($user->id)->update([
+                'password'=>Hash::make($validated['new_password'])
+                ]);
+            session()->flash('success_user_password_message','password sucessfully updated!');       
+            return redirect()->back();
+        }
+        
     }
 
-    /*public function givePermission(Request $request, User $user)
+    #method used to update a user
+    public function update(Request $request, User $user): RedirectResponse
     {
-        if ($user->hasPermissionTo($request->permission)) {
-            return back()->with('message', 'Permission exists.');
-        }
-        $user->givePermissionTo($request->permission);
-        return back()->with('message', 'Permission added.');
-    }
+        $request->validate([
+            'roles' => ['required', 'array'],
+        ]);
 
-    public function revokePermission(User $user, Permission $permission)
-    {
-        if ($user->hasPermissionTo($permission)) {
-            $user->revokePermissionTo($permission);
-            return back()->with('message', 'Permission revoked.');
-        }
-        return back()->with('message', 'Permission does not exists.');
-    }*/
+        $user->syncRoles($request->input('roles'));
+
+        return redirect()->route('users.index');
+    }
 }

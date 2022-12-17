@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreign('post_id')->references('id')->on('posts');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->longtext('comment');
+            $table->longtext('body');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
         });

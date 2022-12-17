@@ -3,121 +3,61 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
+use Spatie\Permission\Models\Role;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Spatie\Permission\Models\Permission;
 class PermissionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    //
+
+    public function create(): View
     {
-        //
-        $permissions = Permission::paginate(5); // Returns a collection
-        return view('admin.permissions.index',compact('permissions'));
+        $roles = Role::pluck('name', 'id');
+
+        return view('permissions.create', compact('roles'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function store(Request $request): RedirectResponse
     {
-        //
-        return view('admin.permissions.create');
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'roles' => ['array'],
+        ]);
+
+        $permission = Permission::create($data);
+
+        $permission->syncRoles($request->input('roles'));
+
+        return redirect()->route('permissions.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function edit(Permission $permission): View
     {
-        //
+        $roles = Role::pluck('name', 'id');
 
-        $validated=$request->validate(['name'=>['required','min:3']]);
-        Permission::create($validated);
-        return redirect()->route('admin.permissions.index');
+        return view('permissions.edit', compact('permission', 'roles'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function update(Request $request, Permission $permission): RedirectResponse
     {
-        //
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'roles' => ['array'],
+        ]);
+
+        $permission->update($data);
+
+        $permission->syncRoles($request->input('roles'));
+
+        return redirect()->route('permissions.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function destroy(Permission $permission): RedirectResponse
     {
-        //
-        $roles = Role::all(); // Returns a collection
-        $permission=Permission::find($id);
-        return view('admin.permissions.edit',compact('permission','roles'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request ,Permission $permission)
-    {
-        //
-        $per=Permission::find($permission->id);
-        $validated=$request->validate(['name'=>'required']);
-        $per->update($validated);
-        return redirect()->route('admin.permissions.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Permission $permission)
-    {
-        //
         $permission->delete();
-        return back()->with('message','Permission deleted');
+
+        return redirect()->route('permissions.index');
     }
-
-        /**
-     * Assign Role to a Permissiom
-     */
-
-    public function assignRole(Request $request,Permission $permission){
-        if($permission->hasRole($request->role)){
-            return back()->with('assign-role','role already exists!');
-        }else{
-            $permission->assignRole($request->role);
-            return back()->with('assign-role','role assigned to permission');
-        }
-    }
-
-    public function removeRole(Permission $permission, Role $role){
-        if($permission->hasRole($role)){
-            $permission->removeRole($role);
-            return back()->with('remove-role','Role Removed');
-        }
-    }
-
 }

@@ -1,89 +1,41 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-  /*
-  .image-thumbnail {
-    position: relative;
-}
-
-.image-caption {
-    position: absolute;
-    top: 45%;
-    left: 0;
-    width: 100%;
-}*/
-</style>
-<!--start of content-->
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-9">
-      <!--Start of Blog Post-->
-      @foreach ($posts as $post)
-      <div class="d-flex row my-2 mx-2 p-0 rounded shadow" >
-
-      
-      <div class="col-6 p-0" >
-            <img class="img-fluid p-0 rounded-start" src="{{Storage::url($post->image_path)}}"alt="{{$post->title}}">
+<div class="px-4 py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 lg:py-20">
+  <div class="mb-10 border-t border-b divide-y">
+    @forelse ($posts as $post)
+      <div class="grid py-8 sm:grid-cols-4">
+          <div class="mb-4 sm:mb-0">
+            <div class="space-y-1 text-xs  font-semibold tracking-wide uppercase">
+              <a href="/" class="transition-colors duration-200 text-deep-purple-accent-400 hover:text-deep-purple-800" aria-label="Category">{{$post->category->title}}</a>
+              <p class="text-gray-600">{{ $post->created_at }}</p>
+            </div>
+          </div>
+          <div class="sm:col-span-3 lg:col-span-2">
+            <div class="mb-3">
+              <a href="{{ route('posts.show',$post->id) }}" aria-label="Article" class="inline-block text-black transition-colors duration-200 hover:text-deep-purple-accent-700">
+                <p class="text-3xl font-extrabold leading-none sm:text-4xl xl:text-4xl hover:text-indigo-600">
+                  {{$post->title}}
+                </p>
+              </a>
+            </div>
+            <p class="text-gray-700">
+              {{ strip_tags($post->content) }}
+            </p>
+          </div>
         </div>
-
-        <div class="col-6">
-          <div><p class="h1 text-secondary"> {{$post->title}}</p></div>
-          <hr>
-          <div class="text-truncate overflow-hidden">{{$post->content}}</div>
-          
-        </div>
-
-      </div>
-      @endforeach
-      <div>
-        {{$posts->links()}}
-      </div>
-     
-      <!--End of Blog Post-->
+    @empty
+    <div class="px-4 py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 lg:py-20">
+    no posts found ...
     </div>
+    @endforelse
 
-  
-    <div class="col-3">
 
-      <!--Start of About Me-->
-        <div class="card text-center mb-5">
-          <div class="card-header">About</div>
-          <div class="card-body mt-2 mb-2">
-            <h5 class="text-gray-900 text-xl font-medium mb-2">Special title treatment</h5>
-            <p class="text-gray-700 text-base mb-4">With supporting text below as a natural lead-in to additional content.</p>
-            <button type="button" class="btn btn-primary">Button</button>
-          </div>
-          <div class="card-footer">2 days ago</div>
-        </div>
-      <!--End of About Me-->
-
-      <!--Start of Popular post-->
-        <div class="card text-center mb-5">
-          <div class="card-header">Popular Post</div>
-          <div class="card-body mt-2 mb-2">
-            <h5 class="text-gray-900 text-xl font-medium mb-2">Special title treatment</h5>
-            <p class="text-gray-700 text-base mb-4">With supporting text below as a natural lead-in to additional content.</p>
-            <button type="button" class="btn btn-primary">Button</button>
-          </div>
-          <div class="card-footer">2 days ago</div>
-        </div>
-      <!--End of Popular Post-->
-
-      <!--Start of Popular post-->
-        <div class="card text-center">
-          <div class="card-header">Follow Me</div>
-          <div class="card-body mt-2 mb-2">
-            <h5 class="text-gray-900 text-xl font-medium mb-2">Special title treatment</h5>
-            <p class="text-gray-700 text-base mb-4">With supporting text below as a natural lead-in to additional content.</p>
-            <button type="button" class="btn btn-primary">Button</button>
-          </div>
-          <div class="card-footer">2 days ago</div>
-        </div>
-
-      <!--End of Popular Post-->
-    </div>
+  </div>
+  <div class="text-center">
+    <span>
+    <span>{{$posts->links('vendor.pagination.tailwind')}}</span>
+    </span>
+  </div>
 </div>
-
-<!--end of contents-->
 @endsection

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Auth;
 class PostController extends Controller
 {
@@ -17,22 +18,11 @@ class PostController extends Controller
     public function index()
     {
         //
-        $user_id=Auth::user()->id;
-        $user=User::find($user_id);        
-        if($user->hasRole('Author')){
-            $posts=DB::table('users')
-            ->join('posts','users.id',"=","posts.user_id")
-            ->where('users.id',$user_id)
-            ->get();
-            return view('admin.posts.index',compact('posts'));
-        }else{
-            $posts=DB::table('users')
-            ->join('posts','users.id',"=","posts.user_id")
-            ->get();
-            return view('admin.posts.index',compact('posts'));
-        }
+        $posts=Post::paginate(10);
+        return view('index',compact('posts'));
 
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -42,7 +32,8 @@ class PostController extends Controller
     public function create()
     {
         //
-        return view('admin.posts.create');
+        $categories=DB::table('categories')->get();
+        return view('posts.create',['categories'=>$categories]);
     }
 
     /**
@@ -54,39 +45,24 @@ class PostController extends Controller
     public function store(Request $request)
     {
         //
-        $post=new Post();
-        if ($request->hasFile('image')) {
-            $extension = $request->image->extension();
-           
-            $size = $request->image->getSize();
-            $allowed_size=1000000;
-            $allowed_extensions=array('jpg','png','jpeg');
-            if(in_array($extension,$allowed_extensions)){
-                if($size<$allowed_size){
-                    $title=$request->title;
-                    $content=$request->content;
-                    $new_file=$request->file('image');
-                    $image_path=$new_file->store('public/images');
-                    $user_id=Auth::user()->id;
 
-                    Post::create([
-                        'title'=>$title,
-                        'content'=>$content,
-                        'image_path'=>$image_path,
-                        'user_id'=>$user_id
-                    ]);
-                    return redirect()->route('admin.posts.index');
+        $validated=$request->validate([
+            'title'=>'required|max:255',
+            'image'=>'required|image|mimes:jpg,png,jpeg,gif,svg|max:10284',
+            'content'=>'required',
+            'category'=>'required'
+        ]);
 
-                }else{
-                    return redirect()->route('admin.posts.create')->with('image','please select an image below 1 MB');
-                }
+        Post::create([
+            'title'=>$validated['title'],
+            'content'=>$validated['content'],
+            'image'=>$validated['image']->store('public/images'),
+            'category_id'=>$validated['category'],
+            'user_id'=>Auth::user()->id
+        ]);
 
-            }else{
-                return redirect()->route('admin.posts.create')->with('image','please a jpj, png or jpeg image format');
-            }            
-        }else{
-            return redirect()->route('admin.posts.create')->with('image','please select a file');
-        }
+        return redirect()->route('posts.index');
+
     }
 
     /**
@@ -98,6 +74,9 @@ class PostController extends Controller
     public function show($id)
     {
         //
+        $post=Post::find($id);
+        return view('posts.show',['post'=>$post]);
+
     }
 
     /**
@@ -108,22 +87,14 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
-        $user_id=Auth::user()->id;
-        $user=User::find($user_id);        
-        if($user->hasRole('Author')){
-            $post=Post::select('*')->where('id','=',$id)->where('user_id','=',$user_id)->first();
-            if($post){
-                return view('admin.posts.edit',compact('post'));
-            }else{
-                abort(403);
-            }
-            
-        }else{
-            $post=Post::find($id);
-            return view('admin.posts.edit',compact('post'));
-        }
-       
+        $post=Post::find($id);
+        $selected='selected';
+        $categories=DB::table('categories')->get();
+        return view('posts.edit',[
+            'post'=>$post,
+            'categories'=>$categories,
+            'selected'=>$selected
+        ]); 
     }
 
     /**
@@ -136,11 +107,51 @@ class PostController extends Controller
     public function update(Request $request, $id)
     {
         //
+        
+        $validated= empty($request->image) ?
+    
+        $validated=$request->validate([
+            'title'=>'required|max:255',
+            'content'=>'required',
+            'category'=>'required'
+        ])
+        :
+
+        $validated=$request->validate([
+            'title'=>'required|max:255',
+            'image'=>'required|mimes:jpg,png,jpeg,gif,svg|max:10284',
+            'content'=>'required',
+            'category'=>'required'
+        ]);
+
+
+     
         $post=Post::find($id);
-        $post->title=$request->title;
-        $post->content=$request->content;
-        $post->save();
-        return redirect()->route('admin.posts.index');
+        if(empty($request->image) ){
+            $post->category_id=$validated['category'];
+            $post->content=$validated['content'];
+            $post->title=$validated['title'];
+            $post->save();
+            return redirect()->route('posts.index');
+        }else{
+            try{
+
+                Storage::delete($validated['image']);
+                
+                $post->category_id=$validated['category'];
+                $post->content=$validated['content'];
+                $post->title=$validated['title'];
+                $post->image=$validated['image']->store('public/images');
+                $post->save();
+                return redirect()->route('posts.index');
+        }catch(\Exception $e){
+            return 'an error occured';
+            //session()->flash('message', 'Error! Post not delete');
+        }
+        }
+
+        //
+      
     }
 
     /**
@@ -152,27 +163,20 @@ class PostController extends Controller
     public function destroy($id)
     {
         //
-        $post=Post::find($id);
-        $post->delete();
-        return redirect()->route('admin.posts.index');
+        try{
+
+            DB::beginTransaction();
+                $post = Post::find($id);
+                $post->delete();
+            DB::commit();
+            
+            Storage::delete($post->image);
+            session()->flash('message', 'Post deleted successfully');
+        }catch(\Exception $e){
+            DB::rollBack();
+            session()->flash('message', 'Error! Post not delete');
+        }
+
     }
 
-
-
-    ############START OF ADMIN FUNCTION###################
-    function list(){
-        $posts=DB::table('users')
-        ->join('posts','users.id',"=","posts.user_id")
-        ->paginate(2);
-        return view('index',compact('posts'));
-    }
-
-
-    public function singlePost($id){
-        $post=DB::table('users')
-        ->join('posts','users.id',"=","posts.user_id")
-        ->where('posts.id',$id)
-        ->first();
-        return view('single-post',compact('post'));
-    }
 }
