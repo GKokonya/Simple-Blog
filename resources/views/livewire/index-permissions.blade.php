@@ -1,4 +1,7 @@
 <div>
+  <div class="my-1">
+    {{ Breadcrumbs::render('permissions') }}
+    </div>
   <div class="flex md:justify-between">    
     <div>
         <form wire:submit.prevent="search" class="md:flex md:justify-between block">

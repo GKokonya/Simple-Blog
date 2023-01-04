@@ -30,7 +30,7 @@ class RoleController extends Controller
 
         $role->givePermissionTo($request->input('permissions'));
 
-        return redirect()->route(config('permission_ui.route_name_prefix') . 'roles.index');
+        return redirect()->route('roles.index');
     }
 
     public function edit(Role $role): View

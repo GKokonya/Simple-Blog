@@ -1,4 +1,7 @@
 <div>
+    <div class="my-1">
+    {{ Breadcrumbs::render('users') }}
+    </div>
     <div class="block md:flex md:justify-between">    
         <div>
             <form wire:submit.prevent="search" class="md:flex md:justify-between block">
@@ -34,11 +37,6 @@
                     </th>
                     <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                         <div class="flex items-center gap-2">
-                        Created
-                        </div>
-                    </th>
-                    <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                        <div class="flex items-center gap-2">
                         Actions
                         </div>
                     </th>
@@ -56,7 +54,6 @@
                                 <span class="rounded-xl bg-blue-300 px-2 py-1 text-xs text-blue-700">{{ $role->name }}</span>
                             @endforeach
                         </td>
-                        <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $user->created_at }}</td>
                         <td class="flex space-x-2 whitespace-nowrap px-4 py-2 text-gray-700">
                             @can('edit user')
                                 <a class="btn" href="{{ route('users.edit', $user) }}">
@@ -65,7 +62,7 @@
                             @endcan
 
                             @can('change other user password')
-                                <a class="btn" href="{{ route('users.edit-other-user-password', $user) }}">
+                                <a class="btn" href="{{ route('users.editpassword', $user->id) }}">
                                     Change Password
                                 </a>
                             @endcan
